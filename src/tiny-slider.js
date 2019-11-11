@@ -1082,7 +1082,7 @@ export var tns = function(options) {
     // == controlsInit ==
     if (hasControls) {
       if (!controlsContainer && (!prevButton || !nextButton)) {
-        outerWrapper.insertAdjacentHTML(getInsertPosition(options.controlsPosition), '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button type="button" data-controls="prev" tabindex="-1" aria-controls="' + slideId +'">' + controlsText[0] + '</button><button type="button" data-controls="next" tabindex="-1" aria-controls="' + slideId +'">' + controlsText[1] + '</button></div>');
+        outerWrapper.insertAdjacentHTML(getInsertPosition(options.controlsPosition), '<div class="tns-controls" aria-label="Slide Navigation" tabindex="-1"><button type="button" data-controls="prev" aria-label="Previous Slide" tabindex="0" aria-controls="' + slideId +'">' + controlsText[0] + '</button><button type="button" data-controls="next" aria-label="Next Slide" tabindex="0" aria-controls="' + slideId +'">' + controlsText[1] + '</button></div>');
 
         controlsContainer = outerWrapper.querySelector('.tns-controls');
       }
@@ -1093,22 +1093,25 @@ export var tns = function(options) {
       }
 
       if (options.controlsContainer) {
-        setAttrs(controlsContainer, {
-          'aria-label': 'Carousel Navigation',
-          'tabindex': '0'
-        });
+        // setAttrs(controlsContainer, {
+        //   'aria-label': 'Carousel Navigation',
+        //   'tabindex': '-1'
+        // });
       }
 
       if (options.controlsContainer || (options.prevButton && options.nextButton)) {
-        setAttrs([prevButton, nextButton], {
-          'aria-controls': slideId,
-          'tabindex': '-1',
-        });
+        // setAttrs([prevButton, nextButton], {
+        //   'aria-controls': slideId,
+        //   'tabindex': '0',
+        //   'role': 'button'
+        // });
       }
 
       if (options.controlsContainer || (options.prevButton && options.nextButton)) {
         setAttrs(prevButton, {'data-controls' : 'prev'});
         setAttrs(nextButton, {'data-controls' : 'next'});
+        setAttrs(prevButton, {'aria-label' : 'previous'});
+        setAttrs(nextButton, {'aria-label' : 'next'});        
       }
 
       prevIsButton = isButton(prevButton);
@@ -1704,9 +1707,14 @@ export var tns = function(options) {
   }
 
   function getLiveRegionStr () {
+    //getVisibleSlideRange includes clones, normalize post clone-math
     var arr = getVisibleSlideRange(),
-        start = arr[0] + 1,
-        end = arr[1] + 1;
+        start = arr[0] - (cloneCount || 0),
+        end = arr[1] - (cloneCount || 0);
+    start = start < 0 ? (start + slideCount) : (start >= slideCount ? start - slideCount : start)
+    start = start + 1
+    end = end < 0 ? (end + slideCount) : (end >= slideCount ? end - slideCount : end)
+    end = end + 1
     return start === end ? start + '' : start + ' to ' + end;
   }
 
@@ -1726,7 +1734,7 @@ export var tns = function(options) {
         rangeend = rangestart + viewport;
       }
     }
-
+    
     // get start, end
     // - check auto width
     if (autoWidth) {
@@ -1736,7 +1744,7 @@ export var tns = function(options) {
           if (rangeend - point >= 0.5) { end = i; }
         }
       });
-
+      
     // - check percentage width, fixed width
     } else {
 
@@ -1770,8 +1778,9 @@ export var tns = function(options) {
         } else {
           end = start + items - 1;
         }
+        
       }
-
+      
       start = Math.max(start, 0);
       end = Math.min(end, slideCountNew - 1);
     }
