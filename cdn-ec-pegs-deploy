@@ -1,0 +1,1 @@
+aws --profile traveltripperio s3 sync dist/ s3://plugins.traveltripper.io/tns/2.9.2-pegs1/ --sse AES256 --acl public-read

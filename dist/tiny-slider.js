@@ -2369,7 +2369,8 @@ var tns = function(options) {
       // show slides
       if (i >= start && i <= end) {
         if (hasAttr(item, 'aria-hidden')) {
-          removeAttrs(item, ['aria-hidden', 'tabindex']);
+          removeAttrs(item, ['aria-hidden']);
+          setAttrs(item, {'tabindex': '0'});
           addClass(item, slideActiveClass);
         }
       // hide slides
